@@ -26,6 +26,8 @@ python3 recon.py -d target.com --skip-js
 [+] Live hosts found: 23
 [+] Total URLs: 1,842
 [+] Juicy endpoints: 34
+## Demo
+![ReconKit Demo](screenshots/demo.png)
 ## Legal
 Only use on targets you have explicit permission to test.
 ## Author
