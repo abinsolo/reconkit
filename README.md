@@ -69,12 +69,20 @@ Built by **Abin A** — chains the best open-source recon tools into one automat
 git clone https://github.com/abinsolo/reconkit
 cd reconkit
 chmod +x install.sh && ./install.sh
-pip3 install -r requirements.txt --break-system-packages
-Requirements
+pip3 install -r requirements.txt --break-system-packages 
+bash'''
+
+---
+
+##Requirements
 Kali Linux (recommended) or any Debian-based system
 Go 1.21+
 Python 3.10+
-Usage
+
+---
+
+##Usage
+
 # Full recon — all phases
 python3 recon.py -d target.com
 
@@ -96,7 +104,9 @@ python3 recon.py -d target.com --quick --skip-amass
 # With scope file (one domain per line)
 python3 recon.py -d target.com --scope scope.txt
 
-#Output Structure
+---
+
+##Output Structure
 Every run creates a timestamped folder under output/:
 
 output/<domain>_<timestamp>/
@@ -112,8 +122,9 @@ output/<domain>_<timestamp>/
 ├── nuclei_findings.txt      # Nuclei vulnerability findings
 ├── REPORT.md                # Markdown report with next steps
 └── REPORT.html              # Color-coded HTML report
+---
 
-# Flag Reference
+## Flag Reference
 - - - - - - -|- - - - - - - - - - - - - - - - - - - - - - --|
 Flag         |   Description                                |
 - - - - - - -|- - - - - - - - - - - - - - - - - - - - - - --|
@@ -129,7 +140,9 @@ Flag         |   Description                                |
              |                                              |
 --scope      |  Path to scope file (one domain per line)    |
 - - - - - - -|- - - - - - - - - - - - - - - - - - - - - - --|
-#Tool Stack
+----
+
+##Tool Stack
 
 1.Subdomain Enumeration 
   -Subfinder 
@@ -152,8 +165,9 @@ Flag         |   Description                                |
 
 5.Vulnerability Scanning
   -Nuclei
+----
 
-#Next Steps After Each Run
+##Next Steps After Each Run
 
 1.Review juicy_endpoints.txt for GraphQL introspection
 2.Check arjun_params.json for IDOR attack surface
@@ -162,7 +176,7 @@ Flag         |   Description                                |
 5.Run s3_candidates.txt through S3Scanner manually
 6.Test auth endpoints with jwt_tool for JWT weaknesses
 
-#Changelog
+##Changelog
 See CHANGELOG.md
 
 Version     Highlights
@@ -172,16 +186,21 @@ v1.1.0      --skip-scan, --skip-js, --skip-amass flags
 
 v1.0.0      Initial release
 
-#Legal
+---
+
+##Legal
 Only use on targets you have explicit written permission to test.
 
 This tool is built for authorized bug bounty programs and penetration testing engagements. Running this against systems without permission is illegal. The author takes no responsibility for misuse.
+---
 
-#Author
+##Author
 Abin A — Bug Bounty Researcher | Penetration Tester
     GitHub: github.com/abinsolo
     Platforms: HackerOne · Intigriti · YesWeHack
     LinkedIn: linkedin.com/in/abin-a-937196382
+---
 
-#Contributing
+##Contributing
 See CONTRIBUTING.md for guidelines on adding new modules
+---
