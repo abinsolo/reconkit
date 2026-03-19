@@ -17,7 +17,7 @@ def run_enum(domain, out, skip_amass=False):
     run(f"assetfinder --subs-only {domain} > {out}/assetfinder.txt")
     console.log("[green][+][/green] Assetfinder done")
     if not skip_amass:
-        run(f"amass enum -passive -d {domain} -o {out}/amass.txt")
+        run(f"amass enum -d {domain} -passive -o {out}/amass.txt")
         console.log("[green][+][/green] Amass done")
     run(f"cat {out}/subfinder.txt {out}/assetfinder.txt {out}/amass.txt "
         f"2>/dev/null | sort -u > {out}/all_subdomains.txt")
