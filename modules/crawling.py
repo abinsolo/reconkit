@@ -24,7 +24,9 @@ def crawl(domain, out, skip_js=False):
     run(f"cat {out}/all_urls.txt | grep -E '\.js$|/api/|/admin|/graphql|/v1/|/v2/' "
         f"> {out}/juicy_endpoints.txt")
     console.log("[green][+][/green] Juicy endpoints extracted")
-    run(f"paramspider -d {domain} -o {out}/params.txt")
+    run(
+        f"paramspider -d {domain} --output {out}/params.txt 2>/dev/null || "
+        f"paramspider -d {domain} > {out}/params.txt 2>/dev/null")
     console.log("[green][+][/green] ParamSpider done")
     run(f"arjun -i {out}/live_hosts.txt --stable -oJ {out}/arjun_params.json")
     console.log("[green][+][/green] Arjun done")
@@ -38,4 +40,18 @@ def crawl(domain, out, skip_js=False):
     url_count = len(open(f"{out}/all_urls.txt").readlines()) if os.path.exists(f"{out}/all_urls.txt") else 0
     juicy_count = len(open(f"{out}/juicy_endpoints.txt").readlines()) if os.path.exists(f"{out}/juicy_endpoints.txt") else 0
     console.log(f"[bold green][+] Total URLs: {url_count} | Juicy: {juicy_count}")
+    run(
+        f"cat {out}/all_subdomains.txt 2>/dev/null | "
+        f"grep -iE 's3|bucket|storage|backup|assets|static|media' "
+        f"> {out}/s3_candidates.txt"
+    )
+    run(
+        f"cat {out}/all_urls.txt 2>/dev/null | "
+        f"grep -iE 's3\.amazonaws|storage\.googleapis|blob\.core\.windows' "
+        f">> {out}/s3_candidates.txt"
+    )
+    s3_count = len(set(open(f"{out}/s3_candidates.txt").readlines())) \
+               if os.path.exists(f"{out}/s3_candidates.txt") else 0
+    console.log(f"[green][+][/green] S3 candidates: {s3_count}")
+
     return url_count, juicy_count 
