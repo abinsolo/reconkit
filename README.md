@@ -82,31 +82,31 @@ Report -> output/hackerone.com_20260319/REPORT.html
 # Usage
 
 ## Full recon — all phases
-python3 recon.py -d target.com
+- python3 recon.py -d target.com
 
 
 ## Quick mode — subdomains + live hosts only
-python3 recon.py -d target.com --quick
+- python3 recon.py -d target.com --quick
 
 
 ## Skip Amass (10x faster, slightly less coverage)
-python3 recon.py -d target.com --skip-amass
+- python3 recon.py -d target.com --skip-amass
 
 
 ## Skip JS analysis
-python3 recon.py -d target.com --skip-js
+- python3 recon.py -d target.com --skip-js
 
 
 ## Skip Nuclei vulnerability scan
-python3 recon.py -d target.com --skip-scan
+- python3 recon.py -d target.com --skip-scan
 
 
 ## Fastest possible run
-python3 recon.py -d target.com --quick --skip-amass
+- python3 recon.py -d target.com --quick --skip-amass
 
 
 ## With scope file (one domain per line)
-python3 recon.py -d target.com --scope scope.txt
+- python3 recon.py -d target.com --scope scope.txt
 
 
 ---
