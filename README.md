@@ -27,10 +27,10 @@ Built by **Abin A** — chains the best open-source recon tools into one automat
 
 # Demo
 
-> Run on hackerone.com with `--quick --skip-amass`
-Target: hackerone.com
-Subdomains: 34 | Live: 21 | URLs: 1,204 | Juicy: 47
-Report -> output/hackerone.com_20260319/REPORT.html
+> Run on localhost without any filters ,
+ Target: local host (OWASP juice shop)
+Subdomains: 21 | Live: 0 | URLs: 190201 | Juicy: 1259
+Report -> output/localhost_20260319_183950/REPORT.md
 ![ReconKit in action](assets/demo.png)
 
 
