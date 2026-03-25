@@ -15,6 +15,18 @@ def generate(domain, out):
     live    = safe_count(f"{out}/live_hosts.txt")
     urls    = safe_count(f"{out}/all_urls.txt")
     juicy   = safe_count(f"{out}/juicy_endpoints.txt")
+    secrets = safe_count(f"{out}/js_secrets.txt")
+    takeover= safe_count(f"{out}/potential__takeover.txt")
+    nuclei  = safe_count(f"{out}/nuclei_findings.txt")
+    api_findings= max(0, safe_count(f"{out}/api_surface.md") - 1)
+    triage_tier  = ''
+    if os.path.exists(f'{out}/TRIAGE_REPORT.md'):
+        content = open(f'{out}/TRIAGE_REPORT.md').read()
+        for t in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO']:
+            if t in content:
+                triage_tier = t
+                break
+    
 
     report = f"""# ReconKit Report
 **Target:** {domain}
@@ -27,13 +39,37 @@ def generate(domain, out):
 | Live Hosts | {live} |
 | Total URLs | {urls} |
 | Juicy Endpoints | {juicy} |
+| JS Secrets Found | {secrets} |
+| Takeover Candidtes | {takeover} |
+| Nuclei Findings | {nuclei} |
+| API Endpoints Mapped | {api_findings} |
 
 ## Next Steps
-1. Review juicy_endpoints.txt for GraphQL introspection
-2. Check arjun_params.json for IDOR attack surface
-3. Run parameterised URLs through Dalfox for XSS
-4. Test auth endpoints for JWT weaknesses using jwt_tool
-5. Manually check API endpoints for Business Logic flaws
+
+### Immediate — Check These First
+1. Review `js_secrets.json` — verify each secret is real and not a test key
+2. Investigate `potential_takeover.txt` — check each CNAME manually for unclaimed services
+3. Review `nuclei_findings.txt` — manually verify every HIGH and CRITICAL finding
+
+### API Attack Surface
+4. Open `api_surface.json` — check for GraphQL introspection enabled endpoints
+5. Run schema enumeration on any enabled GraphQL endpoint
+6. Test REST endpoints in `api_surface.md` for unauthenticated access
+7. Check OpenAPI specs for undocumented or deprecated endpoints
+
+### Parameter Testing
+8. Run Dalfox on `param_urls.txt` for XSS
+9. Check `arjun_params.json` for IDOR attack surface — enumerate object IDs
+10. Test auth endpoints with `jwt_tool` for JWT weaknesses
+
+### Manual Review
+11. Read `juicy_endpoints.txt` — manually test each /admin, /graphql, /api endpoint
+12. Check `s3_candidates.txt` through S3Scanner for public read/write access
+13. Look for business logic flaws on order, loyalty, and payment endpoints
+
+### Reporting
+14. For any confirmed finding — document full reproduction steps before reporting
+15. Check program scope in `scope_intigriti.txt` or `scope_hackerone.txt` before submitting
 """
     with open(f"{out}/REPORT.md", "w") as f:
         f.write(report)
@@ -49,10 +85,10 @@ def generate(domain, out):
 
     takeover = safe_count(f"{out}/potential_takeover.txt")
     nuclei   = safe_count(f"{out}/nuclei_findings.txt")
-    generate_html(domain, out, subs, live, urls, juicy, takeover, nuclei)
+    generate_html(domain, out, subs, live, urls, juicy, takeover, nuclei, secrets, api_findings, triage_tier)
 
 
-def generate_html(domain, out, subs, live, urls, juicy, takeover=0, nuclei=0):
+def generate_html(domain, out, subs, live, urls, juicy, takeover=0, nuclei=0, secrets=0, api_findings=0, triage_tier=''):
     date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def badge(n, w=5, c=20):
@@ -78,11 +114,17 @@ def generate_html(domain, out, subs, live, urls, juicy, takeover=0, nuclei=0):
         f"<tr><td>Live Hosts</td><td>{live}</td><td style='color:#4ade80'>&#10003;</td></tr>"
         f"<tr><td>URLs</td><td>{urls}</td><td style='color:#4ade80'>&#10003;</td></tr>"
         f"<tr><td>Juicy Endpoints</td><td>{juicy}</td>"
+        f"<tr><td>JS Secrets</td><td>{secrets}</td>"
+        f"<td style='color:{badge(secrets,1,5)}'>"
+        f"{'INVESTIGATE' if secrets > 0 else 'Clean'}</td></tr>"
         f"<td style='color:{badge(juicy)}'>{'Review' if juicy > 0 else 'Clean'}</td></tr>"
         f"<tr><td>Takeover Candidates</td><td>{takeover}</td>"
         f"<td style='color:{badge(takeover,1,5)}'>{'INVESTIGATE' if takeover > 0 else 'Clean'}</td></tr>"
         f"<tr><td>Nuclei Findings</td><td>{nuclei}</td>"
         f"<td style='color:{badge(nuclei,1,10)}'>{'FINDINGS' if nuclei > 0 else 'Clean'}</td></tr>"
+        f"<tr><td>API Endpoints Mapped</td><td>{api_findings}</td>"
+        f"<td style='color:{badge(api_findings,1,5)}'>"
+        f"{'REVIEW' if api_findings > 0 else 'None found'}</td></tr>"
         "</table></body></html>"
     )
 
