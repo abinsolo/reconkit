@@ -10,7 +10,7 @@ import datetime
 import subprocess
 import sys
 from rich.console import Console
-from modules import subdomains, probing, crawling, scanning, reporting
+from modules import subdomains, probing, crawling, scanning, reporting, scope_engine, triage, js_secrets, api_mapper
 
 # Initialize rich console for styled output
 console = Console()
@@ -139,8 +139,13 @@ def main():
     # Additional features from upstream
     parser.add_argument("--skip-scan", action="store_true", help="Skip Nuclei scan")
     parser.add_argument("--scope", help="Path to scope file")
+    parser.add_argument("--skip-secrets",action='store_true',help='skip JS secret hunting')
+    parser.add_argument("--skip-api",action='store_true',help='skip API schema mapping')
+    parser.add_argument("--auto-scope",help="hackerone or intigriti")
+    parser.add_argument("--program",help="Program handle on the platform")
+    parser.add_argument("--skip-triage",action='store_true',help='Skip Bounty Triage Layer after Nuclei Scan')
 
-    # 🔥 YOUR FEATURE: Custom output directory
+    # NEW FEATURE: Custom output directory
     parser.add_argument("--output-dir", help="Custom output directory")
 
     args = parser.parse_args()
@@ -151,6 +156,17 @@ def main():
     out = create_output_dir(domain, args.output_dir)
 
     console.print(f"\n[bold cyan]Target:[/bold cyan] {domain}\n")
+    
+    # ------------------------------
+    # Phase 0: Auto-Scope fetch
+    # ------------------------------
+    if args.auto_scope and args.program:
+        fetched_scope = scope_engine.auto_scope(args.auto_scope, args.program, out)
+        if fetched_scope:
+            args.scope = fetched_scope
+            console.log(f'[green][+][/green] Auto-scope active: {fetched_scope}')
+        else:
+            console.log('[yellow][*] Auto-scope fetch failed — running without scope filter[/yellow]')
 
     # -------------------------------
     # Phase 1: Subdomain Enumeration
@@ -170,12 +186,33 @@ def main():
     # -------------------------------
     if not args.quick:
         crawling.crawl(domain, out, skip_js=args.skip_js)
+        
+        # -------------------------------
+        # Phase 3.5: JS Secret Hunting   
+        # -------------------------------
+        if not args.skip_secrets:        
+            js_secrets.hunt(out)         
+                                             
+        # -------------------------------
+        # Phase 4: API - Schema Mapping
+        # -------------------------------
+        if not args.skip_api:
+            api_mapper.map_api(out)
 
+        # -------------------------------
+        # Phase 5: Nuclei Vuln - Scan
+        # -------------------------------
         if not args.skip_scan:
             scanning.scan(out)
 
+            # -------------------------------
+            # Phase 5.5: Bounty Triage
+            # -------------------------------
+            if not args.skip_triage:
+                triage.triage(out)
+
     # -------------------------------
-    # Phase 4: Reporting
+    # Phase 6: Reporting
     # -------------------------------
     reporting.generate(domain, out)
 
